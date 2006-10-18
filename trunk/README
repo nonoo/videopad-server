@@ -1,0 +1,140 @@
+
+    videopad-server
+    Copyright 2006 Norbert "nonoo" Varga <nonoo@nonoo.hu>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+WHAT IS VIDEOPAD?
+-----------------
+VideoPad is a simple, client-server based video conferencing system. Users
+connect and send audio/video data to the central server which distributes
+received data back to them. This way a client doesn't have to have large upload
+bandwidth to communicate with other people.
+
+VideoPad is like IRC: the server has channels, users can join them and talk to
+other people on the same channel.
+
+
+
+
+
+DESCRIPTION OF THE VIDEOPAD PROTOCOL
+------------------------------------
+*******************************************************************************
+* NOTE: As long as VideoPad is in the 0.x.x version branch, protocol may      *
+* change in the future!                                                       *
+*******************************************************************************
+
+VideoPad's protocol is a quite simple, IRC-like text-based protocol. The server
+replies for every user command with a message. Every reply contains a 3 digit
+code, so the client doesn't have to parse the whole text reply.
+
+Clients first connect to the server's tcp control port (default 62320). The
+server sends messages 001 and 002. The client needs to set a nick first, after
+this, MOTD is sent by the server (if MOTD file is set). After that, the server
+sends the client it's allocated video and audio stream serials using message
+008, and finally, 009, indicating that the login process is completed.
+
+The stream serials are needed because VideoPad uses Ogg streams as a container
+for sending and receiving audio and video data. Each Ogg stream has a unique
+serial number. The server identifies client streams using the client's IP
+address and it's streams' serials. Serials are allocated randomly for each
+client (but keeping each stream serial unique).
+
+If the server has a password, 006 is sent after 002. Then the client has to
+give the password (among with the nick) using the PASS command to complete the
+login process.
+
+Client's incoming video and audio stream automatically sent to the channels'
+members the client is on. The client has to send audio and video stream headers
+to the TCP data port. The client may send headers using UDP, but there's a
+great chance that some header packets will be lost and can't be played by
+other clients.
+
+
+
+AVAILABLE SERVER COMMANDS
+-------------------------
+    PASS [pass]
+    NICK [newnick]
+    JOIN [channel]
+    PART [channel]
+    QUIT :(message)
+    MSG [channel] :text
+    PRIVMSG [nick] :text
+    WHOIS [nick]
+    TAGLINE :text
+    REALNAME :text
+    PONG
+
+REPLYS, MESSAGES FROM THE SERVER
+--------------------------------
+Login messages:
+
+    001 :Welcome to [server-name]
+    002 :Running videopad-server v[version]
+    003 :MOTD
+    004 :[motd line]
+    005 :End of MOTD
+    006 :Please login
+    007 :Wrong password, bye              // disconnects client
+    008 [video stream serial] [audio stream serial]
+    009	:Login process completed
+    011 :Login timeout, bye               // disconnects client
+
+Channel messages:
+
+    // join
+    300 [channel] [nick]
+    // channel infos
+    301 [channel] [time when channel was created]
+    302 [channel] :[nicklist]
+    303 [channel] [channel creator's nick]
+    // quit
+    304 [channel] [nick] :[quit message]
+    // part
+    305 [channel] [nick]
+    // nick change
+    306 [channel] [oldnick] [newnick]
+
+Whois reply:
+
+    400 [nick] [ip]
+    401 [nick] [host]
+    402 [nick] :[real name]
+    403 [nick] :[user tagline]
+    404 [nick] :[channels]
+    405 [nick] [time when connected]
+
+Error messages:
+
+    700 [channel]             // invalid channel to join
+    701 [channel]             // can't part, you are not on that channel
+    702 [channel]             // can't send message, channel does not exist
+    703 [nick]                // can't send message, user is not connected
+    704 [nick]                // invalid chars in nick
+    705 [nick]                // nick already used
+    706 [nick] [maxlength]    // nick too long
+    707 [nick]                // can't query whois, user is not connected
+
+Other messages:
+    // channel message
+    500 [channel] [sender nick] :[text]
+    // private message
+    501 [sender nick] :[text]
+    // nick change
+    502 [newnick]             // nick has been changed to this
+    // ping
+    503

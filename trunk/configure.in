@@ -1,0 +1,95 @@
+AC_INIT(videopad-server, 0.1.4)
+AM_INIT_AUTOMAKE
+AC_HEADER_STDC
+AC_PROG_CXX
+AC_LANG_CPLUSPLUS
+AC_CHECK_LIB([socket], [bind])
+AC_CHECK_LIB([nsl], [inet_addr])
+AC_CHECK_LIB([resolv], [gethostbyname2_r])
+
+
+AC_ARG_ENABLE(debug,
+    AC_HELP_STRING([--enable-debug],[enable debugging (default is NO)]),
+[
+    CXXFLAGS="-g -Wall -O0"
+    AC_DEFINE([DEBUG], [1], [Are we debugging?])
+],
+[
+    CXXFLAGS="-Wall -O2"
+])
+
+
+
+dnl checking needed ogg, theora, speex headers, libs
+
+AC_ARG_WITH(ogg-dir,
+    AC_HELP_STRING([--with-ogg-dir=PATH],[path to libogg installation]),
+[
+    CXXFLAGS="$CXXFLAGS -I${withval}/include"
+    LDFLAGS="$LDFLAGS -L${withval}/lib"
+    if test -n "${need_dash_r}"; then
+	LDFLAGS="$LDFLAGS -R${withval}/lib"
+    fi
+])
+AC_ARG_WITH(theora-dir,
+    AC_HELP_STRING([--with-theora-dir=PATH],[path to libtheora installation]),
+[
+    CXXFLAGS="$CXXFLAGS -I${withval}/include"
+    LDFLAGS="$LDFLAGS -L${withval}/lib"
+    if test -n "${need_dash_r}"; then
+	LDFLAGS="$LDFLAGS -R${withval}/lib"
+    fi
+])
+AC_ARG_WITH(speex-dir,
+    AC_HELP_STRING([--with-speex-dir=PATH],[path to libspeex installation]),
+[
+    CXXFLAGS="$CXXFLAGS -I${withval}/include"
+    LDFLAGS="$LDFLAGS -L${withval}/lib"
+    if test -n "${need_dash_r}"; then
+	LDFLAGS="$LDFLAGS -R${withval}/lib"
+    fi
+])
+
+AC_CHECK_LIB([ogg], [ogg_stream_init], [], [
+    echo
+    echo "You need to have libogg installed on your system!"
+    echo "You can download it from http://www.xiph.org/"
+    echo
+    echo "Or you can specify libogg installation directory this way:"
+    echo "./configure --with-ogg-dir=PATH"
+    echo
+    exit
+])
+AC_CHECK_LIB([theora], [theora_decode_init], [], [
+    echo
+    echo "You need to have libtheora installed on your system!"
+    echo "You can download it from http://www.xiph.org/"
+    echo
+    echo "Or you can specify libtheora installation directory this way:"
+    echo "./configure --with-theora-dir=PATH"
+    echo
+    exit
+])
+AC_CHECK_LIB([speex], [speex_decoder_init], [], [
+    echo
+    echo "You need to have libspeex installed on your system!"
+    echo "You can download it from http://www.xiph.org/"
+    echo
+    echo "Or you can specify libspeex installation directory this way:"
+    echo "./configure --with-speex-dir=PATH"
+    echo
+    exit
+])
+
+
+
+dnl #######
+AC_OUTPUT(Makefile src/Makefile conf/Makefile)
+
+AC_MSG_RESULT()
+AC_MSG_RESULT([WOOOOOOOO success! ;)])
+AC_MSG_RESULT(Now you can type make to compile videopad-server.)
+AC_MSG_RESULT()
+AC_MSG_RESULT(PLEASE REMEMBER that you DO NOT have to run videopad-server as root!)
+AC_MSG_RESULT(Running as a simple user is more secure.)
+AC_MSG_RESULT()
