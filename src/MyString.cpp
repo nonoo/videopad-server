@@ -15,14 +15,16 @@
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "Main.h"
-#include "StringExt.h"
+#include "MyString.h"
 
-vector<string> Tokenize( string szLine, unsigned char cDelimiter )
+vector<string> CMyString::Tokenize( unsigned char cDelimiter )
 {
     vector<string> vTokens;
     string szToken;
     unsigned int i = 0;
     unsigned int nLastSpacePos = 0;
+
+    string szLine = *this;
 
     for( ; i < szLine.size(); i++ )
     {
@@ -69,8 +71,10 @@ vector<string> Tokenize( string szLine, unsigned char cDelimiter )
     return vTokens;
 }
 
-bool Compare( string s1, string s2 )
+bool CMyString::Compare( string s2 )
 {
+    string s1 = *this;
+
     string::const_iterator it1=s1.begin();
     string::const_iterator it2=s2.begin();
 
@@ -92,14 +96,28 @@ bool Compare( string s1, string s2 )
     return false;
 }
 
-string ToLower( string szString )
+void CMyString::ToLower()
 {
     string res;
 
-    for( string::iterator it = szString.begin(); it != szString.end(); it++ )
+    for( string::iterator it = begin(); it != end(); it++ )
     {
 	res += tolower( *it );
     }
 
-    return res;
+    assign(res);
+}
+
+CMyString::CMyString( const string& szString )
+{
+    assign( szString );
+}
+
+CMyString::CMyString( const char* pString )
+{
+    assign( pString );
+}
+
+CMyString::CMyString()
+{
 }

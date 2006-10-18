@@ -14,15 +14,24 @@
 //  along with videopad-server; if not, write to the Free Software
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#ifndef __STRINGEXT_H
-#define __STRINGEXT_H
+#ifndef __MYSTRING_H
+#define __MYSTRING_H
 
 #include <string>
 #include <vector>
 
-vector< string >	Tokenize( string szLine, unsigned char cDelimiter );
+class CMyString : public string
+{
+public:
+    CMyString();
+    CMyString( const string& szString );
+    CMyString( const char* pString );
+
+    vector< string >	Tokenize( unsigned char cDelimiter );
+
 			// case insensitive string compare
-bool			Compare( string s1, string s2 );
-string			ToLower( string szString );
+    bool		Compare( string s2 );
+    void		ToLower();
+};
 
 #endif

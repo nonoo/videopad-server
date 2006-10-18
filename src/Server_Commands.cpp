@@ -16,7 +16,7 @@
 
 #include "Main.h"
 #include "Server.h"
-#include "StringExt.h"
+#include "MyString.h"
 
 #include <sstream>
 
@@ -26,7 +26,8 @@ void CServer::Whois( CClient*& pClient, string szParam )
 
     for( vector<CClient*>::iterator it = m_ClientVector.begin(); it != m_ClientVector.end(); it++ )
     {
-        if( Compare( (*it)->GetNick(), szParam ) )
+	CMyString szNick = (*it)->GetNick();
+        if( szNick.Compare( szParam ) )
         {
 	    pWhoisClient = *it;
 	    break;
@@ -39,17 +40,17 @@ void CServer::Whois( CClient*& pClient, string szParam )
 	return;
     }
 
-    pClient->SendMessage( "400 " + szParam + " " + pWhoisClient->GetIP() );
-    pClient->SendMessage( "401 " + szParam + " " + pWhoisClient->GetHost() );
+    pClient->SendMessage( "400 " + pWhoisClient->GetNick() + " " + pWhoisClient->GetIP() );
+    pClient->SendMessage( "401 " + pWhoisClient->GetNick() + " " + pWhoisClient->GetHost() );
 
     if( pWhoisClient->GetRealName().size() > 0 )
     {
-	pClient->SendMessage( "402 :" + szParam + " " + pWhoisClient->GetRealName() );
+	pClient->SendMessage( "402 " + pWhoisClient->GetNick() + " :" + pWhoisClient->GetRealName() );
     }
 
     if( pWhoisClient->GetTagline().size() > 0 )
     {
-	pClient->SendMessage( "403 :" + szParam + " " + pWhoisClient->GetTagline() );
+	pClient->SendMessage( "403 " + pWhoisClient->GetNick() + " :" + pWhoisClient->GetTagline() );
     }
 
     // constructing channel list
@@ -66,14 +67,14 @@ void CServer::Whois( CClient*& pClient, string szParam )
 
     if( szChanList.size() > 0 )
     {
-	pClient->SendMessage( "404 " + szParam + " :" + szChanList );
+	pClient->SendMessage( "404 " + pWhoisClient->GetNick() + " :" + szChanList );
     }
 
     stringstream ss;
     ss << pWhoisClient->GetTimeConnected();
     string res;
     ss >> res;
-    pClient->SendMessage( "405 " + szParam + " " + res );
+    pClient->SendMessage( "405 " + pWhoisClient->GetNick() + " " + res );
 }
 
 void CServer::NickChange( CClient*& pClient, string szParam )
@@ -85,12 +86,14 @@ void CServer::NickChange( CClient*& pClient, string szParam )
 
     // if the client don't want to change the case of it's nick
     // (wants to change to another name)
-    if( !Compare( pClient->GetNick(), szParam ) )
+    CMyString szCurrentNick = pClient->GetNick();
+    if( !szCurrentNick.Compare( szParam ) )
     {
 	// checking nick collision
 	for( vector<CClient*>::iterator it = m_ClientVector.begin(); it != m_ClientVector.end(); it++ )
 	{
-	    if( Compare( (*it)->GetNick(), szParam ) )
+	    CMyString szNick = (*it)->GetNick();
+	    if( szNick.Compare( szParam ) )
 	    {
 		pClient->SendMessage( "705 " + szParam );
 		return;
@@ -162,7 +165,7 @@ void CServer::JoinChannel( CClient*& pClient, string szChannelName )
 	if( pChannel->IsOn( pClient ) )
 	{
 	    // can't join to the same channel again
-	    if( Compare( pChannel->GetName(), szChannelName ) )
+	    if( pChannel->GetName().Compare( szChannelName ) )
 	    {
 		return;
 	    }
