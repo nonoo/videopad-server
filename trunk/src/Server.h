@@ -22,6 +22,7 @@
 #include "Channel.h"
 #include "DataConnection.h"
 #include "SerialMapper.h"
+#include "MyString.h"
 
 #include <vector>
 #include <map>
@@ -65,7 +66,7 @@ private:
 
     // in Server_ClientProcess.cpp
     void ReadClientMessage( CClient*& pClient );
-    void ProcessClientMessage( CClient*& pClient, string szLine );
+    void ProcessClientMessage( CClient*& pClient, CMyString szLine );
     void CheckForConnectionStatus( CClient*& pClient );
     void CheckForLoginTimeout( CClient*& pClient );
     void DeleteChannel( CChannel*& pChannel );

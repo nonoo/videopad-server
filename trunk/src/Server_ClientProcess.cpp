@@ -16,7 +16,6 @@
 
 #include "Main.h"
 #include "Server.h"
-#include "StringExt.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -51,21 +50,21 @@ void CServer::ReadClientMessage( CClient*& pClient )
     }
 }
 
-void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
+void CServer::ProcessClientMessage( CClient*& pClient, CMyString szLine )
 {
-    vector<string> vTokens = Tokenize( szLine, ' ' );
+    vector<string> vTokens = szLine.Tokenize( ' ' );
 
     if( vTokens.size() == 0 )
     {
 	return;
     }
     
-    string szCommand = vTokens[0];
-    string szParam;
+    CMyString szCommand = vTokens[0];
+    CMyString szParam;
 
     if( vTokens.size() > 1 )
     {
-	szParam = vTokens[1];
+	szParam.assign( vTokens[1] );
     }
 
     // szText is the string after : from the last token
@@ -77,7 +76,7 @@ void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
 
     if( pClient->IsLoggedin() == false )
     {
-        if( Compare( szCommand, "PASS" ) )
+        if( szCommand.Compare( "PASS" ) )
         {
 	    if( szParam == g_SettingsFile_Server.Get( "server settings", "server-password", "" ) )
 	    {
@@ -93,18 +92,18 @@ void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
 	    }
 	}
 
-	if( Compare( szCommand, "NICK" ) )
+	if( szCommand.Compare( "NICK" ) )
 	{
 	    NickChange( pClient, szParam );
 	}
 
-	if( Compare( szCommand, "QUIT" ) )
+	if( szCommand.Compare( "QUIT" ) )
 	{
 	    DeleteClient( pClient );
 	    return;
 	}
 
-	if( Compare( szCommand, "PONG" ) )
+	if( szCommand.Compare( "PONG" ) )
 	{
 	    pClient->SetPingSent( false );
 	    pClient->SetLastPingTime( time( NULL ) );
@@ -133,7 +132,7 @@ void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
 	return;
     }
 
-    if( Compare( szCommand, "QUIT" ) )
+    if( szCommand.Compare( "QUIT" ) )
     {
 	if( szText.size() > 0 )
 	{
@@ -144,20 +143,21 @@ void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
 	return;
     }
 
-    if( Compare( szCommand, "JOIN" ) )
+    if( szCommand.Compare( "JOIN" ) )
     {
-	JoinChannel( pClient, ToLower( szParam ) );
+	szParam.ToLower();
+	JoinChannel( pClient, szParam );
 	return;
     }
 
-    if( Compare( szCommand, "PART" ) )
+    if( szCommand.Compare( "PART" ) )
     {
 	PartChannel( pClient, szParam );
 	return;
     }
 
     // channel msg
-    if( Compare( szCommand, "MSG" ) )
+    if( szCommand.Compare( "MSG" ) )
     {
 	if( szText.size() == 0 ) // no message
 	{
@@ -165,7 +165,7 @@ void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
 	}
 
 	// channel names are always lowercase
-	szParam = ToLower( szParam );
+	szParam.ToLower();
 
 	// channel exists?
 	if( m_ChannelMap.count( szParam ) == 0 )
@@ -184,7 +184,7 @@ void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
     }
 
     // private msg
-    if( Compare( szCommand, "PRIVMSG" ) )
+    if( szCommand.Compare( "PRIVMSG" ) )
     {
 	if( szText.size() == 0 ) // no message
 	{
@@ -192,13 +192,14 @@ void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
 	}
 
 	// channel names are always lowercase
-	szParam = ToLower( szParam );
+	szParam.ToLower();
 
 	// searching for the destination's *CClient
 	bool fMSGSent = false;
 	for( vector<CClient*>::iterator it = m_ClientVector.begin(); it != m_ClientVector.end(); it++ )
 	{
-	    if( Compare( (*it)->GetNick(), szParam ) )
+	    CMyString szNick = (*it)->GetNick();
+	    if( szNick.Compare( szParam ) )
 	    {
 		string msg = "501 " + pClient->GetNick() + " :" + szText;
 		(*it)->SendMessage( msg );
@@ -217,28 +218,28 @@ void CServer::ProcessClientMessage( CClient*& pClient, string szLine )
 	return;
     }
 
-    if( Compare( szCommand, "NICK" ) )
+    if( szCommand.Compare( "NICK" ) )
     {
 	NickChange( pClient, szParam );
 	return;
     }
 
-    if( Compare( szCommand, "WHOIS" ) )
+    if( szCommand.Compare( "WHOIS" ) )
     {
 	Whois( pClient, szParam );
     }
 
-    if( Compare( szCommand, "TAGLINE" ) )
+    if( szCommand.Compare( "TAGLINE" ) )
     {
 	pClient->SetTagline( szText );
     }
 
-    if( Compare( szCommand, "REALNAME" ) )
+    if( szCommand.Compare( "REALNAME" ) )
     {
 	pClient->SetRealName( szText );
     }
 
-    if( Compare( szCommand, "PONG" ) )
+    if( szCommand.Compare( "PONG" ) )
     {
 	pClient->SetPingSent( false );
 	pClient->SetLastPingTime( time( NULL ) );

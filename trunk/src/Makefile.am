@@ -12,7 +12,7 @@ videopad_server_SOURCES = \
 	DataConnection.cpp DataConnection.h \
 	Client.cpp Client.h \
 	Channel.cpp Channel.h \
-	StringExt.cpp StringExt.h \
+	MyString.cpp MyString.h \
 	OggStream.cpp OggStream.h \
 	OggDecoder.cpp OggDecoder.h \
 	VideoStream.h \

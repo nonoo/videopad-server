@@ -53,7 +53,7 @@ am_videopad_server_OBJECTS = Main.$(OBJEXT) ArgParser.$(OBJEXT) \
 	Server.$(OBJEXT) Server_ClientProcess.$(OBJEXT) \
 	Server_Commands.$(OBJEXT) Server_NewClientConnection.$(OBJEXT) \
 	Server_DataProcess.$(OBJEXT) DataConnection.$(OBJEXT) \
-	Client.$(OBJEXT) Channel.$(OBJEXT) StringExt.$(OBJEXT) \
+	Client.$(OBJEXT) Channel.$(OBJEXT) MyString.$(OBJEXT) \
 	OggStream.$(OBJEXT) OggDecoder.$(OBJEXT) \
 	SerialMapper.$(OBJEXT)
 videopad_server_OBJECTS = $(am_videopad_server_OBJECTS)
@@ -164,7 +164,7 @@ videopad_server_SOURCES = \
 	DataConnection.cpp DataConnection.h \
 	Client.cpp Client.h \
 	Channel.cpp Channel.h \
-	StringExt.cpp StringExt.h \
+	MyString.cpp MyString.h \
 	OggStream.cpp OggStream.h \
 	OggDecoder.cpp OggDecoder.h \
 	VideoStream.h \
@@ -243,6 +243,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DataConnection.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Logger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Main.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MyString.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OggDecoder.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/OggStream.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SerialMapper.Po@am__quote@
@@ -252,7 +253,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Server_DataProcess.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Server_NewClientConnection.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/SettingsFile.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/StringExt.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/TCPListener.Po@am__quote@
 
 .cpp.o:
