@@ -51,48 +51,40 @@ void CChannel::AddClient( CClient*& pClient )
 
 	m_ClientVector.push_back( pClient );
 
-	// sending a join message to all of the channel's members
+	// sending a join message to the channel members
 	string msg = "300 " + m_szName + " " + pClient->GetNick();
-	SendMessage( msg );
+	SendMessage2( msg, pClient );
     }
 
+    SendNickList( pClient );
+
+    // sending creation time
     string msg;
     stringstream ss;
     ss << m_tTimeCreated;
     ss >> msg;
     msg = "301 " + m_szName + " " + msg;
     pClient->SendMessage( msg );
-
-    SendNickList( pClient );
-
-    if( m_pCreator != NULL )
-    {
-	msg = "303 " + m_szName + " ";
-	msg += m_pCreator->GetNick();
-	pClient->SendMessage( msg );
-    }
 }
 
 void CChannel::SendNickList( CClient*& pClient )
 {
-    string msg = "302 " + m_szName + " :";
-
-    // constructing nicklist
     for( tClientVector::iterator it = m_ClientVector.begin(); it != m_ClientVector.end(); it++ )
     {
+	string msg = "300 " + m_szName + " ";
+
 	CClient*& itClient = *it;
 	char cClientFlag = m_FlagMap[itClient];
 	if( cClientFlag != ' ' )
 	{
-	    msg += cClientFlag + itClient->GetNick() + " ";
+	    msg += cClientFlag + itClient->GetNick();
 	}
 	else
 	{
-	    msg += itClient->GetNick() + " ";
+	    msg += itClient->GetNick();
 	}
+	pClient->SendMessage( msg );
     }
-
-    pClient->SendMessage( msg );
 }
 
 void CChannel::DeleteClient( CClient*& pClient )
