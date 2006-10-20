@@ -219,7 +219,7 @@ void CServer::Loop()
 	        {
 		    break;
 		}
-		//it = m_ClientVector.begin(); // ??
+		it = m_ClientVector.begin();
 	    }
 	}
     }
