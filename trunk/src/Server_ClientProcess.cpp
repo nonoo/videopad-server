@@ -174,7 +174,15 @@ void CServer::ProcessClientMessage( CClient*& pClient, CMyString szLine )
 	// channel exists?
 	if( m_ChannelMap.count( szParam ) == 0 )
 	{
-	    string err = "702 " + szParam;
+	    string err = "702 " + szParam + " :can't send message, channel does not exist";
+	    pClient->SendMessage( err );
+	    return;
+	}
+
+	// user is on channel?
+	if( !m_ChannelMap[szParam]->IsOn( pClient ) )
+	{
+	    string err = "708 " + szParam + " :can't send message, you are not on that channel";
 	    pClient->SendMessage( err );
 	    return;
 	}
@@ -215,7 +223,7 @@ void CServer::ProcessClientMessage( CClient*& pClient, CMyString szLine )
 	if( !fMSGSent )
 	{
 	    // user does not exist
-	    pClient->SendMessage( "703 " + szParam );
+	    pClient->SendMessage( "703 " + szParam + " :can't send message, user is not connected" );
 	    return;
 	}
 
