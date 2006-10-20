@@ -78,6 +78,7 @@ AVAILABLE SERVER COMMANDS
     TAGLINE :text
     REALNAME :text
     PONG
+    CHANLIST
 
 REPLYS, MESSAGES FROM THE SERVER
 --------------------------------
@@ -91,8 +92,9 @@ Login messages:
     006 :Please login
     007 :Wrong password, bye              // disconnects client
     008 [video stream serial] [audio stream serial]
-    009	:Login process completed
-    011 :Login timeout, bye               // disconnects client
+    009	:Login process completed.
+    010 :Login timeout, bye               // disconnects client
+    011 [tcp data port] [udp data port]
 
 Channel messages:
 
@@ -100,14 +102,17 @@ Channel messages:
     300 [channel] [nick]
     // channel infos
     301 [channel] [time when channel was created]
-    302 [channel] :[nicklist]
-    303 [channel] [channel creator's nick]
     // quit
     304 [channel] [nick] :[quit message]
     // part
     305 [channel] [nick]
     // nick change
     306 [channel] [oldnick] [newnick]
+
+    // start of channel list
+    350 :Listing channels...
+    351 [channel]
+    352 :End of channel list.
 
 Whois reply:
 
