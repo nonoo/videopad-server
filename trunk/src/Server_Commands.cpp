@@ -205,3 +205,15 @@ void CServer::PartChannel( CClient*& pClient, string szChannelName )
 	DeleteChannel( m_ChannelMap[szChannelName] );
     }
 }
+
+void CServer::SendChanList( CClient*& pClient )
+{
+    pClient->SendMessage( "350 :Listing channels..." );
+
+    for( tChannelMap::iterator it = m_ChannelMap.begin(); it != m_ChannelMap.end(); it++ )
+    {
+	pClient->SendMessage( "351 " + it->first );
+    }
+
+    pClient->SendMessage( "352 :End of channel list." );
+}

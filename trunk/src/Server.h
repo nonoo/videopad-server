@@ -77,6 +77,7 @@ private:
     void PartChannel( CClient*& pClient, string szChannelName );
     void NickChange( CClient*& pClient, string szParam );
     void Whois( CClient*& pClient, string szParam );
+    void SendChanList( CClient*& pClient );
 
 
 
