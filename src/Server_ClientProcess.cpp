@@ -58,13 +58,13 @@ void CServer::ProcessClientMessage( CClient*& pClient, CMyString szLine )
     {
 	return;
     }
-    
+
     CMyString szCommand = vTokens[0];
     CMyString szParam;
 
     if( vTokens.size() > 1 )
     {
-	szParam.assign( vTokens[1] );
+	szParam = vTokens[1];
     }
 
     // szText is the string after : from the last token
@@ -126,6 +126,10 @@ void CServer::ProcessClientMessage( CClient*& pClient, CMyString szLine )
 	    s2 >> sz2;
 	    
 	    pClient->SendMessage( "008 " + sz1 + " " + sz2 );
+
+	    // sending data port numbers
+	    pClient->SendMessage( "011 " + g_SettingsFile_Server.Get( "server settings", "tcp-data-port", "62321" ) +
+		" " + g_SettingsFile_Server.Get( "server settings", "udp-data-port", "62321" ) );
 
 	    pClient->SetLoggedin( true );
 	}
@@ -227,22 +231,32 @@ void CServer::ProcessClientMessage( CClient*& pClient, CMyString szLine )
     if( szCommand.Compare( "WHOIS" ) )
     {
 	Whois( pClient, szParam );
+	return;
     }
 
     if( szCommand.Compare( "TAGLINE" ) )
     {
 	pClient->SetTagline( szText );
+	return;
     }
 
     if( szCommand.Compare( "REALNAME" ) )
     {
 	pClient->SetRealName( szText );
+	return;
     }
 
     if( szCommand.Compare( "PONG" ) )
     {
 	pClient->SetPingSent( false );
 	pClient->SetLastPingTime( time( NULL ) );
+	return;
+    }
+
+    if( szCommand.Compare( "CHANLIST" ) )
+    {
+	SendChanList( pClient );
+	return;
     }
 }
 
@@ -315,7 +329,7 @@ void CServer::CheckForConnectionStatus( CClient*& pClient )
     {
 	SendMOTD( pClient );
 	pClient->SetMOTDSent( true );
-	pClient->SendMessage( "009 :Login process completed" );
+	pClient->SendMessage( "009 :Login process completed." );
 	return;
     }
 
@@ -346,7 +360,7 @@ void CServer::CheckForLoginTimeout( CClient*& pClient )
 	if( ( !pClient->IsLoggedin() ) &&
 	    ( time(NULL) - pClient->GetTimeConnected() > g_SettingsFile_Server.GetInt( "server settings", "login-timeout", 60 ) ) )
 	{
-	    pClient->SendMessage( "011 :Login timeout, bye" );
+	    pClient->SendMessage( "010 :Login timeout, bye" );
 	    DeleteClient( pClient );
 	}
     }
