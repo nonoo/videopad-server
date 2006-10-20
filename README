@@ -125,14 +125,15 @@ Whois reply:
 
 Error messages:
 
-    700 [channel]             // invalid channel to join
-    701 [channel]             // can't part, you are not on that channel
-    702 [channel]             // can't send message, channel does not exist
-    703 [nick]                // can't send message, user is not connected
-    704 [nick]                // invalid chars in nick
-    705 [nick]                // nick already used
-    706 [nick] [maxlength]    // nick too long
-    707 [nick]                // can't query whois, user is not connected
+    700 [channel] :invalid channel to join
+    701 [channel] :can't part, you are not on that channel
+    702 [channel] :can't send message, channel does not exist
+    703 [nick] :can't send message, user is not connected
+    704 [nick] :invalid chars in nick
+    705 [nick] :nick already used
+    706 [nick] [maxlength] :nick too long
+    707 [nick] :can't query whois, user is not connected
+    708 [channel] :can't send message, you are not on that channel
 
 Other messages:
     // channel message

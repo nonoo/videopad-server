@@ -36,7 +36,7 @@ void CServer::Whois( CClient*& pClient, string szParam )
 
     if( pWhoisClient == NULL )
     {
-	pClient->SendMessage( "707 " + szParam );
+	pClient->SendMessage( "707 " + szParam + " :can't query whois, user is not connected" );
 	return;
     }
 
@@ -95,7 +95,7 @@ void CServer::NickChange( CClient*& pClient, string szParam )
 	    CMyString szNick = (*it)->GetNick();
 	    if( szNick.Compare( szParam ) )
 	    {
-		pClient->SendMessage( "705 " + szParam );
+		pClient->SendMessage( "705 " + szParam + " :nick already used" );
 		return;
 	    }
 	}
@@ -104,7 +104,7 @@ void CServer::NickChange( CClient*& pClient, string szParam )
     // if the old and the new nick is exactly the same
     if( pClient->GetNick() == szParam )
     {
-	pClient->SendMessage( "705 " + szParam );
+	pClient->SendMessage( "705 " + szParam + " :nick already used" );
 	return;
     }
 
@@ -137,12 +137,12 @@ void CServer::NickChange( CClient*& pClient, string szParam )
 	    stringstream ss;
 	    ss << MAXNICKLENGTH;
 	    ss >> err;
-	    err = "706 " + szParam + " " + err;
+	    err = "706 " + szParam + " " + err + " :nick too long";
 	    pClient->SendMessage( err );
 	    return;
 	}
 	// invalid chars in nick
-	string err = "704 " + szParam;
+	string err = "704 " + szParam + " :invalid chars in nick";
 	pClient->SendMessage( err );
     }
 }
@@ -152,7 +152,7 @@ void CServer::JoinChannel( CClient*& pClient, string szChannelName )
     if( ( szChannelName.size() <= 1 ) ||
 	( szChannelName[0] != '#' ) )
     {
-	string err = "700 " + szChannelName;
+	string err = "700 " + szChannelName + " :invalid channel to join";
 	pClient->SendMessage( err );
 	return;
     }
@@ -189,7 +189,7 @@ void CServer::PartChannel( CClient*& pClient, string szChannelName )
     if( m_ChannelMap.count( szChannelName ) == 0 )
     {
 	// user is not on that channel
-	string err = "701 " + szChannelName;
+	string err = "701 " + szChannelName + " :can't part, you are not on that channel";
 	pClient->SendMessage( err );
 	return;
     }
