@@ -40,7 +40,7 @@ public:
 
 protected:
     bool		IsHeaderPacket( ogg_packet* pOggPacket );
-    void		StoreHeaderPacket( ogg_packet* pOggPacket );
+    void		StoreHeaderPage( ogg_page* pOggPage );
 
 
 
@@ -48,7 +48,7 @@ protected:
     unsigned int		m_nSerial;
     ogg_stream_state*		m_pStreamState;
     ogg_page*			m_pOggPage;
-    vector< ogg_packet* >	m_HeaderVector;
+    vector< ogg_page* >		m_HeaderVector;
     // becomes true when we process the first non-header packet
     // this means we got all of the header packets in our header vector
     bool			m_fInitialized;

@@ -25,6 +25,8 @@ COggDecoder::COggDecoder()
 
 COggDecoder::~COggDecoder()
 {
+    free( m_pSyncState->data );
+    ogg_sync_init( m_pSyncState );
     ogg_sync_destroy( m_pSyncState );
 }
 

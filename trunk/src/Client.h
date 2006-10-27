@@ -17,9 +17,7 @@
 #ifndef __CLIENT_H
 #define __CLIENT_H
 
-#include "DataConnection.h"
 #include "OggStream.h"
-#include "OggDecoder.h"
 #include "VideoStream.h"
 #include "AudioStream.h"
 
@@ -32,8 +30,10 @@ public:
     void		SendMessage( string szMessage );
     void		SendData( char* pData, unsigned int nDataSize );
 
-    void		SetSocket( unsigned int nSocket );
-    const unsigned int&	GetSocket();
+    void		SetControlSocket( unsigned int nSocket );
+    const unsigned int&	GetControlSocket();
+    void		SetDataSocket( unsigned int nSocket );
+    const unsigned int&	GetDataSocket();
     void		SetIP( string szIP );
     const string&	GetIP();
     void		SetHost( string szHost );
@@ -65,14 +65,11 @@ public:
     void		SetTagline( string szTagline );
     CVideoStream*	GetVideoStream();
     CAudioStream*	GetAudioStream();
-    void		SetDataConnection( CDataConnection* pDataConnection );
-    CDataConnection*	GetDataConnection();
-    COggDecoder*	GetOggDecoder();
-    unsigned int	GetDataSocket();
 
 private:
     string		m_szNick;
-    unsigned int	m_nSocket;
+    unsigned int	m_nControlSocket;
+    unsigned int	m_nDataSocket;
     string		m_szIP;
     string		m_szHost;
     string		m_szRealName;
@@ -86,7 +83,6 @@ private:
     string		m_szQuitMessage;
     time_t		m_tLastPingTime;
     bool		m_fPingSent;
-    CDataConnection*	m_pDataConnection;
     CVideoStream*	m_pVideoStream;
     CAudioStream*	m_pAudioStream;
 };

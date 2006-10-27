@@ -97,7 +97,7 @@ void CServer::NewClientConnect()
     CClient* pNewClient = new CClient;
     m_ClientVector.push_back( pNewClient );
 
-    pNewClient->SetSocket( nNewSocket );
+    pNewClient->SetControlSocket( nNewSocket );
     if( pNewClientHostent != NULL )
     {
 	pNewClient->SetHost( pNewClientHostent->h_name );

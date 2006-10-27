@@ -18,9 +18,10 @@
 #define __SERVER_H
 
 #include "TCPListener.h"
+#include "UDPListener.h"
 #include "Client.h"
 #include "Channel.h"
-#include "DataConnection.h"
+#include "OggDecoder.h"
 #include "SerialMapper.h"
 #include "MyString.h"
 
@@ -57,8 +58,9 @@ private:
     // otherwise returns the serial number of the ogg page read from
     // the connection
     //
-    int ReadUnassignedDataConnection( CDataConnection*& pDataConnection );
-    void ReadClientData( unsigned int nSocket, CClient*& pClient );
+    int ReadUnassignedDataSocket( unsigned int& nSocket );
+    void ReadUDPData( CUDPListener* pUDPListener );
+    void ReadClientData( CClient*& pClient );
     // processes the ogg page stored in client's OggDecoder's buffer
     // call this when OggDecoder.Wrote returns >= 0 (there's a page available)
     //
@@ -83,14 +85,16 @@ private:
 
     CTCPListener*			m_pControlSocket;
     CTCPListener*			m_pDataSocket_TCP;
+    CUDPListener*			m_pDataSocket_UDP;
     char				m_pReadBuf[MAXMESSAGELENGTH+1];
     int					m_nReadBufPos;
     vector< CClient* >			m_ClientVector;
     typedef map< string, CChannel* >	tChannelMap;
     tChannelMap				m_ChannelMap;
-    // data connections not assigned to a client yet
-    vector< CDataConnection* >	m_UnassignedDataConnectionVector;
-    CSerialMapper		m_SerialMapper;
+    // data connection sockets not assigned to a client yet
+    vector< unsigned int >		m_UnassignedDataSocketVector;
+    CSerialMapper			m_SerialMapper;
+    COggDecoder*			m_pOggDecoder;
 };
 
 #endif

@@ -14,20 +14,20 @@
 //  along with videopad-server; if not, write to the Free Software
 //  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-#include "Main.h"
-#include "DataConnection.h"
+#ifndef __UDPLISTENER_H
+#define __UDPLISTENER_H
 
-CDataConnection::CDataConnection( const unsigned int& nDataSocket )
+class CUDPListener
 {
-    m_nSocket = nDataSocket;
-}
+public:
+    // creates listen socket
+    CUDPListener( string& szBindIP, int nPort );
+    ~CUDPListener();
 
-const unsigned int& CDataConnection::GetSocket()
-{
-    return m_nSocket;
-}
+    const unsigned int&	GetSocket();
 
-COggDecoder* CDataConnection::GetOggDecoder()
-{
-    return &m_OggDecoder;
-}
+private:
+    unsigned int m_Socket;
+};
+
+#endif
