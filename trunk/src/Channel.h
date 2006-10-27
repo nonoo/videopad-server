@@ -43,7 +43,7 @@ public:
     void		SendNickList( CClient*& pClient );
 
 			// sends the given data to all of the channel's
-			// members
+			// members except sender
     void		BroadcastData( char* pData, unsigned int nDataSize,
 			    CClient* pSenderClient );
 

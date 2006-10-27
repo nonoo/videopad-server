@@ -60,10 +60,7 @@ private:
     //
     int ReadUnassignedDataSocket( unsigned int& nSocket );
     void ReadUDPData( CUDPListener* pUDPListener );
-    void ReadClientData( CClient*& pClient );
-    // processes the ogg page stored in client's OggDecoder's buffer
-    // call this when OggDecoder.Wrote returns >= 0 (there's a page available)
-    //
+    void ReadClientDataSocket( CClient*& pClient );
     void ProcessClientData( CClient*& pClient );
 
     // in Server_ClientProcess.cpp
