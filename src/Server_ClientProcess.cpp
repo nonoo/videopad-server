@@ -24,7 +24,7 @@
 
 void CServer::ReadClientMessage( CClient*& pClient )
 {
-    int res = recv( pClient->GetSocket(), m_pReadBuf+m_nReadBufPos, MAXMESSAGELENGTH-m_nReadBufPos, MSG_DONTWAIT );
+    int res = recv( pClient->GetControlSocket(), m_pReadBuf+m_nReadBufPos, MAXMESSAGELENGTH-m_nReadBufPos, MSG_DONTWAIT );
 
     if( ( res <= 0 ) && ( errno != EAGAIN ) )
     {

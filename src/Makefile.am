@@ -6,10 +6,10 @@ videopad_server_SOURCES = \
 	SettingsFile.cpp SettingsFile.h \
 	Logger.cpp Logger.h \
 	TCPListener.cpp TCPListener.h \
+	UDPListener.cpp UDPListener.h \
 	Server.cpp Server.h \
 	Server_ClientProcess.cpp Server_Commands.cpp \
 	Server_NewClientConnection.cpp Server_DataProcess.cpp \
-	DataConnection.cpp DataConnection.h \
 	Client.cpp Client.h \
 	Channel.cpp Channel.h \
 	MyString.cpp MyString.h \

@@ -28,8 +28,8 @@ CClient::CClient()
     m_fOperator = false;
     m_fPingSent = false;
     m_tLastPingTime = time( NULL );
-    m_nSocket = 0;
-    m_pDataConnection = NULL;
+    m_nControlSocket = 0;
+    m_nDataSocket = 0;
     m_pVideoStream = new CVideoStream;
     m_pAudioStream = new CAudioStream;
 
@@ -45,12 +45,13 @@ CClient::CClient()
 
 CClient::~CClient()
 {
-    SAFE_DELETE( m_pDataConnection );
     SAFE_DELETE( m_pVideoStream );
     SAFE_DELETE( m_pAudioStream );
 
-    shutdown( m_nSocket, SHUT_RDWR );
-    close( m_nSocket );
+    shutdown( m_nDataSocket, SHUT_RDWR );
+    close( m_nDataSocket );
+    shutdown( m_nControlSocket, SHUT_RDWR );
+    close( m_nControlSocket );
 }
 
 void CClient::SetIP( string szIP )
@@ -73,14 +74,24 @@ const string& CClient::GetHost()
     return m_szHost;
 }
 
-void CClient::SetSocket( unsigned int nSocket )
+void CClient::SetControlSocket( unsigned int nSocket )
 {
-    m_nSocket = nSocket;
+    m_nControlSocket = nSocket;
 }
 
-const unsigned int& CClient::GetSocket()
+const unsigned int& CClient::GetControlSocket()
 {
-    return m_nSocket;
+    return m_nControlSocket;
+}
+
+void CClient::SetDataSocket( unsigned int nSocket )
+{
+    m_nDataSocket = nSocket;
+}
+
+const unsigned int& CClient::GetDataSocket()
+{
+    return m_nDataSocket;
 }
 
 const time_t& CClient::GetTimeConnected()
@@ -120,29 +131,38 @@ void CClient::SendMessage( string szMessage )
 	szMessage += "\r\n";
     }
 
-    int res = send( m_nSocket, szMessage.c_str(), szMessage.size(), 0 );
+    int res = send( m_nControlSocket, szMessage.c_str(), szMessage.size(), 0 );
 
     if( res <= 0 )
     {
 	m_fConnectionClosed = true;
-    }
-    if( res < 0 )
-    {
-	m_szQuitMessage = "Connection reset by peer";
+
+	if( res < 0 )
+	{
+	    m_szQuitMessage = "Connection reset by peer";
+	}
     }
 }
 
 void CClient::SendData( char* pData, unsigned int nDataSize )
 {
-    int res = send( m_pDataConnection->GetSocket(), pData, nDataSize, 0 );
+    if( m_nDataSocket == 0 )
+    {
+	// the client has no data connection
+	//
+	return;
+    }
+
+    int res = send( m_nDataSocket, pData, nDataSize, 0 );
 
     if( res <= 0 )
     {
 	m_fConnectionClosed = true;
-    }
-    if( res < 0 )
-    {
-	m_szQuitMessage = "Data connection reset by peer";
+
+	if( res < 0 )
+	{
+	    m_szQuitMessage = "Data connection reset by peer";
+	}
     }
 }
 
@@ -260,33 +280,4 @@ CVideoStream* CClient::GetVideoStream()
 CAudioStream* CClient::GetAudioStream()
 {
     return m_pAudioStream;
-}
-
-void CClient::SetDataConnection( CDataConnection* pDataConnection )
-{
-    m_pDataConnection = pDataConnection;
-}
-
-CDataConnection* CClient::GetDataConnection()
-{
-    return m_pDataConnection;
-}
-
-COggDecoder* CClient::GetOggDecoder()
-{
-    if( m_pDataConnection != NULL )
-    {
-	return m_pDataConnection->GetOggDecoder();
-    }
-    g_Logger.Error( "can't get ogg decoder, this shouldn't happen" );
-    return NULL;
-}
-
-unsigned int CClient::GetDataSocket()
-{
-    if( m_pDataConnection != NULL )
-    {
-	return m_pDataConnection->GetSocket();
-    }
-    return 0;
 }
