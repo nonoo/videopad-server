@@ -55,13 +55,14 @@ void COggStream::FeedPage( ogg_page& OggPage )
 
     if( !m_fInitialized )
     {
-	ogg_stream_pagein( m_pStreamState, &OggPage );
-
 	// processing packets if the stream hasn't been initalized yet
 	// (we haven't got the first non-header packet yet)
 	//
+	ogg_stream_pagein( m_pStreamState, &OggPage );
+
 	ogg_packet* pOggPacket = (ogg_packet *) malloc( sizeof( ogg_packet ) );
 	memset( pOggPacket, 0, sizeof( ogg_packet ) );
+	pOggPacket->granulepos = 1; // because packetout doesn't fill out this
 	ogg_stream_packetout( m_pStreamState, pOggPacket );
 
         // got a packet
@@ -74,7 +75,7 @@ void COggStream::FeedPage( ogg_page& OggPage )
 	{
 	    cout << m_nSerial << ": got non-header" << endl;
 	    // we got a non-header packet
-	    // this means we have all header packets in our header vector
+	    // this means we have all header pages in our header vector
 	    //
 	    m_fInitialized = true;
 	}

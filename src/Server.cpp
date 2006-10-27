@@ -209,7 +209,7 @@ void CServer::Loop()
 		// checking client's tcp data socket
 		if( FD_ISSET( pClient->GetDataSocket(), &rd ) )
 		{
-		    ReadClientData( pClient );
+		    ReadClientDataSocket( pClient );
 		}
 	    }
 
