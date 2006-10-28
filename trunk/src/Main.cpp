@@ -63,6 +63,10 @@ void OnSIGTERM( int )
     g_fTerminate = true;
 }
 
+void OnSIGPIPE( int )
+{
+}
+
 void AtExit()
 {
     g_Logger.Info( "exiting." );
@@ -73,6 +77,7 @@ int main( int argc, char* argv[] )
     umask( 177 ); // chmod 600
     signal( SIGTERM, OnSIGTERM );
     signal( SIGINT, OnSIGTERM );
+    signal( SIGPIPE, OnSIGPIPE );
 
     CArgParser* ArgParser = new CArgParser( argc, argv );
     SAFE_DELETE( ArgParser );

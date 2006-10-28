@@ -21,6 +21,7 @@ COggStream::COggStream()
 {
     m_fInitialized = false;
     m_pStreamState = (ogg_stream_state *) malloc( sizeof( ogg_stream_state ) );
+    memset( m_pStreamState, 0, sizeof( ogg_stream_state ) );
 }
 
 COggStream::~COggStream()

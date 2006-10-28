@@ -24,10 +24,10 @@ public:
     CUDPListener( string& szBindIP, int nPort );
     ~CUDPListener();
 
-    const unsigned int&	GetSocket();
+    const int&	GetSocket();
 
 private:
-    unsigned int m_Socket;
+    int		m_Socket;
 };
 
 #endif

@@ -84,7 +84,7 @@ CTCPListener::~CTCPListener()
     close( m_Socket );
 }
 
-const unsigned int& CTCPListener::GetSocket()
+const int& CTCPListener::GetSocket()
 {
     return m_Socket;
 }

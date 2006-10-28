@@ -75,7 +75,7 @@ CUDPListener::~CUDPListener()
     close( m_Socket );
 }
 
-const unsigned int& CUDPListener::GetSocket()
+const int& CUDPListener::GetSocket()
 {
     return m_Socket;
 }

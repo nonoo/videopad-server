@@ -28,8 +28,8 @@ CClient::CClient()
     m_fOperator = false;
     m_fPingSent = false;
     m_tLastPingTime = time( NULL );
-    m_nControlSocket = 0;
-    m_nDataSocket = 0;
+    m_nControlSocket = -1;
+    m_nDataSocket = -1;
     m_pVideoStream = new CVideoStream;
     m_pAudioStream = new CAudioStream;
 
@@ -45,6 +45,7 @@ CClient::CClient()
 
 CClient::~CClient()
 {
+cout<<"del: "<<m_szNick<<endl;
     SAFE_DELETE( m_pVideoStream );
     SAFE_DELETE( m_pAudioStream );
 
@@ -74,22 +75,22 @@ const string& CClient::GetHost()
     return m_szHost;
 }
 
-void CClient::SetControlSocket( unsigned int nSocket )
+void CClient::SetControlSocket( int nSocket )
 {
     m_nControlSocket = nSocket;
 }
 
-const unsigned int& CClient::GetControlSocket()
+const int& CClient::GetControlSocket()
 {
     return m_nControlSocket;
 }
 
-void CClient::SetDataSocket( unsigned int nSocket )
+void CClient::SetDataSocket( int nSocket )
 {
     m_nDataSocket = nSocket;
 }
 
-const unsigned int& CClient::GetDataSocket()
+const int& CClient::GetDataSocket()
 {
     return m_nDataSocket;
 }
@@ -146,7 +147,7 @@ void CClient::SendMessage( string szMessage )
 
 void CClient::SendData( char* pData, unsigned int nDataSize )
 {
-    if( m_nDataSocket == 0 )
+    if( m_nDataSocket == -1 )
     {
 	// the client has no data connection
 	//

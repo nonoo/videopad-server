@@ -30,10 +30,10 @@ public:
     void		SendMessage( string szMessage );
     void		SendData( char* pData, unsigned int nDataSize );
 
-    void		SetControlSocket( unsigned int nSocket );
-    const unsigned int&	GetControlSocket();
-    void		SetDataSocket( unsigned int nSocket );
-    const unsigned int&	GetDataSocket();
+    void		SetControlSocket( int nSocket );
+    const int&		GetControlSocket();
+    void		SetDataSocket( int nSocket );
+    const int&		GetDataSocket();
     void		SetIP( string szIP );
     const string&	GetIP();
     void		SetHost( string szHost );
@@ -68,8 +68,8 @@ public:
 
 private:
     string		m_szNick;
-    unsigned int	m_nControlSocket;
-    unsigned int	m_nDataSocket;
+    int			m_nControlSocket;
+    int			m_nDataSocket;
     string		m_szIP;
     string		m_szHost;
     string		m_szRealName;

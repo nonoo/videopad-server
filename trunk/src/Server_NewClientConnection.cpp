@@ -58,13 +58,13 @@ void CServer::SendMOTD( CClient*& pClient )
 void CServer::NewClientConnect()
 {
     struct sockaddr_in ClientAddr;
-
+cout<<"newclient"<<endl;
     // accepting new client connection
     //
     memset( &ClientAddr, 0, sizeof(ClientAddr) );
     unsigned int l = sizeof(ClientAddr);
-    unsigned int nNewSocket = accept( m_pControlSocket->GetSocket(), (struct sockaddr *)&ClientAddr, &l );
-
+    int nNewSocket = accept( m_pControlSocket->GetSocket(), (struct sockaddr *)&ClientAddr, &l );
+cout<<"accepted: "<<nNewSocket<<endl;
     // resolving client's address
     //
     struct hostent* pNewClientHostent = NULL;
