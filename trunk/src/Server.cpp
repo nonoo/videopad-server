@@ -37,9 +37,6 @@ CServer::CServer()
     nBindToPort = g_SettingsFile_Server.GetInt( "server settings", "udp-data-port", 62321 );
     m_pDataSocket_UDP = new CUDPListener( szBindToIp, nBindToPort );
 
-    memset( m_pReadBuf, 0, MAXMESSAGELENGTH+1 );
-    m_nReadBufPos = 0;
-
     m_pOggDecoder = new COggDecoder;
 }
 

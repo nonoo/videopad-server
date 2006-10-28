@@ -41,6 +41,9 @@ CClient::CClient()
     {
 	m_fPassGiven = false;
     }
+
+    memset( m_pReadBuf, 0, MAXMESSAGELENGTH+1 );
+    m_nReadBufPos = 0;
 }
 
 CClient::~CClient()
@@ -49,8 +52,11 @@ cout<<"del: "<<m_szNick<<endl;
     SAFE_DELETE( m_pVideoStream );
     SAFE_DELETE( m_pAudioStream );
 
-    shutdown( m_nDataSocket, SHUT_RDWR );
-    close( m_nDataSocket );
+    if( m_nDataSocket >= 0 )
+    {
+	shutdown( m_nDataSocket, SHUT_RDWR );
+	close( m_nDataSocket );
+    }
     shutdown( m_nControlSocket, SHUT_RDWR );
     close( m_nControlSocket );
 }
@@ -281,4 +287,19 @@ CVideoStream* CClient::GetVideoStream()
 CAudioStream* CClient::GetAudioStream()
 {
     return m_pAudioStream;
+}
+
+char* CClient::GetControlBuf()
+{
+    return m_pReadBuf;
+}
+
+const int& CClient::GetControlBufPos()
+{
+    return m_nReadBufPos;
+}
+
+void CClient::SetControlBufPos( int nPos )
+{
+    m_nReadBufPos = nPos;
 }

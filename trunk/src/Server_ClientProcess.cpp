@@ -24,7 +24,10 @@
 
 void CServer::ReadClientMessage( CClient*& pClient )
 {
-    int res = recv( pClient->GetControlSocket(), m_pReadBuf+m_nReadBufPos, MAXMESSAGELENGTH-m_nReadBufPos, MSG_DONTWAIT );
+    int nControlBufPos = pClient->GetControlBufPos();
+    char* pControlBuf = pClient->GetControlBuf();
+
+    int res = recv( pClient->GetControlSocket(), pControlBuf+nControlBufPos, MAXMESSAGELENGTH-nControlBufPos, MSG_DONTWAIT );
 
     if( ( res <= 0 ) && ( errno != EAGAIN ) )
     {
@@ -32,21 +35,22 @@ void CServer::ReadClientMessage( CClient*& pClient )
 	return;
     }
 
-    m_nReadBufPos += res;
+    nControlBufPos += res;
+    pClient->SetControlBufPos( nControlBufPos );
 
-    if( ( m_pReadBuf[m_nReadBufPos-1] == '\n' ) ||
-	( m_nReadBufPos == MAXMESSAGELENGTH ) )
+    if( ( pControlBuf[nControlBufPos-1] == '\n' ) ||
+	( nControlBufPos == MAXMESSAGELENGTH ) )
     {
-	ProcessClientMessage( pClient, m_pReadBuf );
-
-	memset( m_pReadBuf, 0, MAXMESSAGELENGTH+1 );
-	m_nReadBufPos = 0;
+	ProcessClientMessage( pClient, pControlBuf );
 
 	// if the client has been dropped
 	if( pClient == NULL )
 	{
 	    return;
 	}
+
+	memset( pControlBuf, 0, MAXMESSAGELENGTH+1 );
+	pClient->SetControlBufPos( 0 );
     }
 }
 

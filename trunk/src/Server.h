@@ -83,8 +83,6 @@ private:
     CTCPListener*			m_pControlSocket;
     CTCPListener*			m_pDataSocket_TCP;
     CUDPListener*			m_pDataSocket_UDP;
-    char				m_pReadBuf[MAXMESSAGELENGTH+1];
-    int					m_nReadBufPos;
     vector< CClient* >			m_ClientVector;
     typedef map< string, CChannel* >	tChannelMap;
     tChannelMap				m_ChannelMap;
