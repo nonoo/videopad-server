@@ -66,6 +66,14 @@ public:
     CVideoStream*	GetVideoStream();
     CAudioStream*	GetAudioStream();
 
+			// each control data received from the client goes
+			// into m_pReadBuf.
+			// after a line is completed (ended with \n) it'll be
+			// processed.
+    char*		GetControlBuf();
+    const int&		GetControlBufPos();
+    void		SetControlBufPos( int nPos );
+
 private:
     string		m_szNick;
     int			m_nControlSocket;
@@ -85,6 +93,8 @@ private:
     bool		m_fPingSent;
     CVideoStream*	m_pVideoStream;
     CAudioStream*	m_pAudioStream;
+    char		m_pReadBuf[MAXMESSAGELENGTH+1];
+    int			m_nReadBufPos;
 };
 
 #endif
