@@ -68,18 +68,17 @@ void CServer::Loop()
 {
     while( !g_fTerminate )
     {
-	unsigned int nfds = 0;
-	fd_set rd, wr, er;
+	int nfds = 0;
+	fd_set rd, er;
 	FD_ZERO( &rd );
-	FD_ZERO( &wr );
 	FD_ZERO( &er );
 
-	// adding control socket to select
+	// adding control listener socket to select
 	FD_SET( m_pControlSocket->GetSocket(), &rd );
 	FD_SET( m_pControlSocket->GetSocket(), &er );
 	nfds = MAX( nfds, m_pControlSocket->GetSocket() );
 
-	// adding tcp data socket to select
+	// adding tcp data listener socket to select
 	FD_SET( m_pDataSocket_TCP->GetSocket(), &rd );
 	FD_SET( m_pDataSocket_TCP->GetSocket(), &er );
 	nfds = MAX( nfds, m_pDataSocket_TCP->GetSocket() );
@@ -94,18 +93,22 @@ void CServer::Loop()
 	for( vector<CClient*>::iterator it = m_ClientVector.begin(); it != m_ClientVector.end(); it++ )
 	{
     	    CClient* pClient = *it;
+		cout << pClient->GetControlSocket() <<endl;
 	    // control
 	    FD_SET( pClient->GetControlSocket(), &rd );
 	    FD_SET( pClient->GetControlSocket(), &er );
 	    nfds = MAX( nfds, pClient->GetControlSocket() );
 	    // tcp data
-	    FD_SET( pClient->GetDataSocket(), &rd );
-	    FD_SET( pClient->GetDataSocket(), &er );
-	    nfds = MAX( nfds, pClient->GetDataSocket() );
+	    if( pClient->GetDataSocket() >= 0 )
+	    {
+		FD_SET( pClient->GetDataSocket(), &rd );
+		FD_SET( pClient->GetDataSocket(), &er );
+		nfds = MAX( nfds, pClient->GetDataSocket() );
+	    }
 	}
 
 	// adding unassigned tcp data sockets to select
-	for( vector<unsigned int>::iterator it = m_UnassignedDataSocketVector.begin(); it != m_UnassignedDataSocketVector.end(); it++ )
+	for( vector<int>::iterator it = m_UnassignedDataSocketVector.begin(); it != m_UnassignedDataSocketVector.end(); it++ )
 	{
 	    FD_SET( *it, &rd );
 	    FD_SET( *it, &er );
@@ -120,7 +123,7 @@ void CServer::Loop()
 	tOneSec.tv_sec = 1;
 	tOneSec.tv_usec = 0;
 
-	int res = select( nfds+1, &rd, &wr, &er, &tOneSec );
+	int res = select( nfds+1, &rd, NULL, &er, &tOneSec );
 
 	// select error checking
 	//
@@ -130,22 +133,30 @@ void CServer::Loop()
 	}
 	if( res < 0 )
 	{
-	    g_Logger.Error( "select() error" );
-	    break;
+	    if( errno == ENOMEM )
+	    {
+		g_Logger.Error( "select() error: not enough memory" );
+		break;
+	    }
+	    continue;
 	}
+
+
 
 
 
 	// new client connected to control socket
 	//
-	if( FD_ISSET( m_pControlSocket->GetSocket(), &rd ) )
+	if( ( FD_ISSET( m_pControlSocket->GetSocket(), &rd ) ) &&
+	    ( !FD_ISSET( m_pControlSocket->GetSocket(), &er ) ) )
 	{
 	    NewClientConnect();
 	}
 
 	// new data connection to tcp data socket
 	//
-	if( FD_ISSET( m_pDataSocket_TCP->GetSocket(), &rd ) )
+	if( ( FD_ISSET( m_pDataSocket_TCP->GetSocket(), &rd ) ) &&
+	    ( !FD_ISSET( m_pDataSocket_TCP->GetSocket(), &er ) ) )
 	{
 	    NewDataConnection();
 	}
@@ -153,11 +164,13 @@ void CServer::Loop()
 
 
 
+
 	// checking unassigned data connections
 	//
-	for( vector<unsigned int>::iterator it = m_UnassignedDataSocketVector.begin(); it != m_UnassignedDataSocketVector.end(); it++ )
+	for( vector<int>::iterator it = m_UnassignedDataSocketVector.begin(); it != m_UnassignedDataSocketVector.end(); it++ )
 	{
-	    if( FD_ISSET( *it, &rd ) )
+	    if( ( FD_ISSET( *it, &rd ) ) &&
+		( !FD_ISSET( *it, &er ) ) )
 	    {
 		// data is ready on this socket
 		int res = ReadUnassignedDataSocket( *it );
@@ -171,11 +184,22 @@ void CServer::Loop()
 		}
 
 		// if the data connection has been dropped
-		if( (  *it == 0 ) || ( res == -1 ) )
+		if( (  *it == -1 ) || ( res == -1 ) )
 		{
 		    m_UnassignedDataSocketVector.erase( it );
 		}
 
+		if( m_UnassignedDataSocketVector.size() == 0 )
+		{
+		    break;
+		}
+	    }
+
+	    // checking for socket errors
+	    //
+	    if( FD_ISSET( *it, &er ) )
+	    {
+		m_UnassignedDataSocketVector.erase( it );
 		if( m_UnassignedDataSocketVector.size() == 0 )
 		{
 		    break;
@@ -192,11 +216,38 @@ void CServer::Loop()
 	{
     	    CClient* pClient = *it;
 
-	    if( FD_ISSET( pClient->GetControlSocket(), &rd ) )
+	    // checking for socket errors
+	    //
+	    if( FD_ISSET( pClient->GetControlSocket(), &er ) )
 	    {
-	        // data is ready on client's control socket
-	        //
-	        ReadClientMessage( pClient );
+		pClient->SetQuitMessage( "Connection reset by peer" );
+		DeleteClient( pClient );
+	    }
+
+	    // checking for data socket errors
+	    //
+	    if( pClient != NULL )
+	    {
+		// if the client has a data connection
+		//
+		if( pClient->GetDataSocket() >= 0 )
+		{
+		    if( FD_ISSET( pClient->GetDataSocket(), &er ) )
+		    {
+			pClient->SetQuitMessage( "Data connection reset by peer" );
+			DeleteClient( pClient );
+		    }
+		}
+	    }
+
+	    if( pClient != NULL )
+	    {
+		if( FD_ISSET( pClient->GetControlSocket(), &rd ) )
+		{
+	    	    // data is ready on client's control socket
+	    	    //
+	    	    ReadClientMessage( pClient );
+		}
 	    }
 
 	    // if client hasn't been dropped
@@ -206,14 +257,23 @@ void CServer::Loop()
 		CheckForConnectionStatus( pClient );
 		CheckForLoginTimeout( pClient );
 
-		// checking client's tcp data socket
-		if( FD_ISSET( pClient->GetDataSocket(), &rd ) )
-		{
-		    ReadClientDataSocket( pClient );
+	    }
+
+	    if( pClient != NULL )
+	    {
+	        // checking client's tcp data socket if it is valid
+		//
+	        if( pClient->GetDataSocket() >= 0 )
+	        {
+		    if( FD_ISSET( pClient->GetDataSocket(), &rd ) )
+		    {
+		        ReadClientDataSocket( pClient );
+		    }
 		}
 	    }
 
 	    // if client has been dropped
+	    //
 	    if( pClient == NULL )
 	    {
 	        if( m_ClientVector.size() == 0 )

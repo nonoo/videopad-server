@@ -82,7 +82,7 @@ void CServer::NewDataConnection()
     m_UnassignedDataSocketVector.push_back( nNewSocket );
 }
 
-int CServer::ReadUnassignedDataSocket( unsigned int& nSocket )
+int CServer::ReadUnassignedDataSocket( int& nSocket )
 {
     int res = recv( nSocket,
 	m_pOggDecoder->GetBuffer( MAXDATAREAD ), MAXDATAREAD,
@@ -102,10 +102,18 @@ int CServer::ReadUnassignedDataSocket( unsigned int& nSocket )
 	// ogg page is ready, we got the serial.
 	// now associating socket with the client
 	CClient* pClient = m_SerialMapper.GetClient( nSerial );
+	if( pClient == NULL )
+	{
+	    return -1;
+	}
 	pClient->SetDataSocket( nSocket );
 
 	// feeding ogg page into the client's associated stream
 	COggStream* pOggStream = m_SerialMapper.GetOggStream( nSerial );
+	if( pOggStream == NULL )
+	{
+	    return -1;
+	}
 	pOggStream->FeedPage( m_pOggDecoder->GetPage() );
 
 	// processing page with the client
@@ -137,7 +145,10 @@ void CServer::ReadUDPData( CUDPListener* pUDPListener )
 	COggStream* pOggStream = m_SerialMapper.GetOggStream(
 	    m_pOggDecoder->GetCurrentPageSerial() );
 
-	pOggStream->FeedPage( m_pOggDecoder->GetPage() );
+	if( pOggStream != NULL )
+	{
+	    pOggStream->FeedPage( m_pOggDecoder->GetPage() );
+	}
 
 	// processing page with the client
 	ProcessClientData( pClient );
@@ -172,8 +183,18 @@ void CServer::ReadClientDataSocket( CClient*& pClient )
 
 void CServer::ProcessClientData( CClient*& pClient )
 {
+    if( pClient == NULL )
+    {
+	return;
+    } 
+
     COggStream* pOggStream = m_SerialMapper.GetOggStream(
         m_pOggDecoder->GetCurrentPageSerial() );
+
+    if( pOggStream == NULL )
+    {
+	return;
+    }
 
     // sending incoming ogg page to all the channels the sender client is on
     //

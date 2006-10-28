@@ -24,10 +24,10 @@ public:
     CTCPListener( string& szBindIP, int nPort );
     ~CTCPListener();
 
-    const unsigned int&	GetSocket();
+    const int&		GetSocket();
 
 private:
-    unsigned int m_Socket;
+    int			m_Socket;
 };
 
 #endif
