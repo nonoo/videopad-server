@@ -22,9 +22,9 @@ CSerialMapper::CSerialMapper()
     srand( time( NULL ) );
 }
 
-const unsigned int CSerialMapper::GetNewVideoSerial( CClient* pClient )
+const int CSerialMapper::GetNewVideoSerial( CClient* pClient )
 {
-    unsigned int r = rand();
+    int r = rand();
 
     while( m_SerialMap.count( r ) > 0 )
     {
@@ -38,9 +38,9 @@ const unsigned int CSerialMapper::GetNewVideoSerial( CClient* pClient )
     return r;
 }
 
-const unsigned int CSerialMapper::GetNewAudioSerial( CClient* pClient )
+const int CSerialMapper::GetNewAudioSerial( CClient* pClient )
 {
-    unsigned int r = rand();
+    int r = rand();
 
     while( m_SerialMap.count( r ) > 0 )
     {
@@ -66,12 +66,12 @@ void CSerialMapper::DeleteClientSerials( CClient* pClient )
     }
 }
 
-CClient* CSerialMapper::GetClient( const unsigned int& nSerial )
+CClient* CSerialMapper::GetClient( const int& nSerial )
 {
     return m_SerialMap[nSerial].first;
 }
 
-COggStream* CSerialMapper::GetOggStream( const unsigned int& nSerial )
+COggStream* CSerialMapper::GetOggStream( const int& nSerial )
 {
     return m_SerialMap[nSerial].second;
 }

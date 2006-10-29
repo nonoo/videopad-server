@@ -122,6 +122,7 @@ void CServer::ProcessClientMessage( CClient*& pClient, CMyString szLine )
 	    stringstream s2;
 	    int r1 = m_SerialMapper.GetNewVideoSerial( pClient );
 	    int r2 = m_SerialMapper.GetNewAudioSerial( pClient );
+	    cout<<r1<<"-"<<r2<<endl;
 	    s1 << r1;
 	    s2 << r2;
 	    string sz1;

@@ -63,6 +63,7 @@ public:
     void		SetRealName( string szRealName );
     const string&	GetTagline();
     void		SetTagline( string szTagline );
+
     CVideoStream*	GetVideoStream();
     CAudioStream*	GetAudioStream();
 

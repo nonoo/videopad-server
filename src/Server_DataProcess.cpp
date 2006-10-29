@@ -92,13 +92,14 @@ int CServer::ReadUnassignedDataSocket( int& nSocket )
     {
 	shutdown( nSocket, SHUT_RDWR );
 	close( nSocket );
-	nSocket = 0;
+	nSocket = -1;
 	return -1;
     }
 
     int nSerial = m_pOggDecoder->Wrote( res );
     if( nSerial >= 0 )
     {
+    cout <<nSerial<<endl;
 	// ogg page is ready, we got the serial.
 	// now associating socket with the client
 	CClient* pClient = m_SerialMapper.GetClient( nSerial );
