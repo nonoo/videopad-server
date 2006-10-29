@@ -34,16 +34,16 @@ public:
     // sets a new unique serial to the given client and returns with the
     // number
     //
-    const unsigned int	GetNewVideoSerial( CClient* pClient );
-    const unsigned int	GetNewAudioSerial( CClient* pClient );
+    const int		GetNewVideoSerial( CClient* pClient );
+    const int		GetNewAudioSerial( CClient* pClient );
 
     void 		DeleteClientSerials( CClient* pClient );
 
-    CClient*		GetClient( const unsigned int& nSerial );
-    COggStream*		GetOggStream( const unsigned int& nSerial );
+    CClient*		GetClient( const int& nSerial );
+    COggStream*		GetOggStream( const int& nSerial );
 
 private:
-    typedef map< unsigned int, pair< CClient*, COggStream* > > tSerialMap;
+    typedef map< int, pair< CClient*, COggStream* > > tSerialMap;
     tSerialMap		m_SerialMap;
 };
 

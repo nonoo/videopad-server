@@ -90,7 +90,7 @@ void CServer::Loop()
 	for( vector<CClient*>::iterator it = m_ClientVector.begin(); it != m_ClientVector.end(); it++ )
 	{
     	    CClient* pClient = *it;
-		cout << pClient->GetControlSocket() <<endl;
+
 	    // control
 	    FD_SET( pClient->GetControlSocket(), &rd );
 	    FD_SET( pClient->GetControlSocket(), &er );
@@ -181,8 +181,10 @@ void CServer::Loop()
 		}
 
 		// if the data connection has been dropped
-		if( (  *it == -1 ) || ( res == -1 ) )
+		if( ( *it == -1 ) || ( res == -1 ) )
 		{
+		    shutdown( *it, SHUT_RDWR );
+		    close( *it );
 		    m_UnassignedDataSocketVector.erase( it );
 		}
 
