@@ -58,9 +58,7 @@ private:
     // otherwise returns the serial number of the ogg page read from
     // the connection
     //
-    int ReadUnassignedDataSocket( int& nSocket );
-    void ReadUDPData( CUDPListener* pUDPListener );
-    void ReadClientDataSocket( CClient*& pClient );
+    int ReadDataConnection( CDataConnection* pConnection );
     void ProcessClientData( CClient*& pClient );
 
     // in Server_ClientProcess.cpp
@@ -86,10 +84,9 @@ private:
     vector< CClient* >			m_ClientVector;
     typedef map< string, CChannel* >	tChannelMap;
     tChannelMap				m_ChannelMap;
-    // data connection sockets not assigned to a client yet
-    vector< int >			m_UnassignedDataSocketVector;
+    // data connections not assigned to a client yet
+    vector< CDataConnection* >		m_UnassignedDataConnectionVector;
     CSerialMapper			m_SerialMapper;
-    COggDecoder*			m_pOggDecoder;
 };
 
 #endif

@@ -32,22 +32,23 @@ COggDecoder::~COggDecoder()
 
 char* COggDecoder::GetBuffer( const unsigned int& nBufferSize )
 {
+    //ogg_sync_clear( m_pSyncState );
+    //ogg_sync_reset( m_pSyncState );
     return ogg_sync_buffer( m_pSyncState, nBufferSize );
 }
 
-int COggDecoder::Wrote( const unsigned int& nBytes )
+void COggDecoder::Wrote( const unsigned int& nBytes )
 {
     ogg_sync_wrote( m_pSyncState, nBytes );
-    if( ogg_sync_pageout( m_pSyncState, &m_OggPage ) == 1 )
-    {
-	return ogg_page_serialno( &m_OggPage );
-    }
-    return -1;
 }
 
-ogg_page& COggDecoder::GetPage()
+ogg_page* COggDecoder::PageOut()
 {
-    return m_OggPage;
+    if( ogg_sync_pageout( m_pSyncState, &m_OggPage ) == 1 )
+    {
+	return &m_OggPage;
+    }
+    return NULL;
 }
 
 int COggDecoder::GetCurrentPageSerial()

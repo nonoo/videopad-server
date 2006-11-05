@@ -50,16 +50,16 @@ void COggStream::SetSerial( const unsigned int& nSerial )
     ogg_stream_init( m_pStreamState, m_nSerial );
 }
 
-void COggStream::FeedPage( ogg_page& OggPage )
+void COggStream::FeedPage( ogg_page* pOggPage )
 {
-    m_pOggPage = &OggPage;
+    m_pOggPage = pOggPage;
 
     if( !m_fInitialized )
     {
 	// processing packets if the stream hasn't been initalized yet
 	// (we haven't got the first non-header packet yet)
 	//
-	ogg_stream_pagein( m_pStreamState, &OggPage );
+	ogg_stream_pagein( m_pStreamState, pOggPage );
 
 	ogg_packet* pOggPacket = (ogg_packet *) malloc( sizeof( ogg_packet ) );
 	memset( pOggPacket, 0, sizeof( ogg_packet ) );
