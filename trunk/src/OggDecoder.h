@@ -34,8 +34,8 @@ public:
 		// otherwise returns the serial number of the ogg page
 		// available
 		//
-    int		Wrote( const unsigned int& nBytes );
-    ogg_page&	GetPage();
+    void	Wrote( const unsigned int& nBytes );
+    ogg_page*	PageOut();
     int		GetCurrentPageSerial();
 
 private:

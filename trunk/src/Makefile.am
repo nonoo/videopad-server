@@ -7,6 +7,7 @@ videopad_server_SOURCES = \
 	Logger.cpp Logger.h \
 	TCPListener.cpp TCPListener.h \
 	UDPListener.cpp UDPListener.h \
+	DataConnection.h DataConnection.cpp \
 	Server.cpp Server.h \
 	Server_ClientProcess.cpp Server_Commands.cpp \
 	Server_NewClientConnection.cpp Server_DataProcess.cpp \

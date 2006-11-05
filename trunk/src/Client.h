@@ -20,6 +20,7 @@
 #include "OggStream.h"
 #include "VideoStream.h"
 #include "AudioStream.h"
+#include "DataConnection.h"
 
 class CClient
 {
@@ -32,8 +33,8 @@ public:
 
     void		SetControlSocket( int nSocket );
     const int&		GetControlSocket();
-    void		SetDataSocket( int nSocket );
-    const int&		GetDataSocket();
+    void		SetDataConnection( CDataConnection* pConnection );
+    CDataConnection*	GetDataConnection();
     void		SetIP( string szIP );
     const string&	GetIP();
     void		SetHost( string szHost );
@@ -74,11 +75,12 @@ public:
     char*		GetControlBuf();
     const int&		GetControlBufPos();
     void		SetControlBufPos( int nPos );
+    int			GetCurrentPageSerial();
 
 private:
     string		m_szNick;
     int			m_nControlSocket;
-    int			m_nDataSocket;
+    CDataConnection*	m_pDataConnection;
     string		m_szIP;
     string		m_szHost;
     string		m_szRealName;

@@ -29,7 +29,7 @@ CClient::CClient()
     m_fPingSent = false;
     m_tLastPingTime = time( NULL );
     m_nControlSocket = -1;
-    m_nDataSocket = -1;
+    m_pDataConnection = NULL;
     m_pVideoStream = new CVideoStream;
     m_pAudioStream = new CAudioStream;
 
@@ -49,16 +49,13 @@ CClient::CClient()
 CClient::~CClient()
 {
 cout<<"del: "<<m_szNick<<endl;
-    SAFE_DELETE( m_pVideoStream );
-    SAFE_DELETE( m_pAudioStream );
+    SAFE_DELETE( m_pDataConnection );
 
-    if( m_nDataSocket >= 0 )
-    {
-	shutdown( m_nDataSocket, SHUT_RDWR );
-	close( m_nDataSocket );
-    }
     shutdown( m_nControlSocket, SHUT_RDWR );
     close( m_nControlSocket );
+
+    SAFE_DELETE( m_pVideoStream );
+    SAFE_DELETE( m_pAudioStream );
 }
 
 void CClient::SetIP( string szIP )
@@ -91,14 +88,14 @@ const int& CClient::GetControlSocket()
     return m_nControlSocket;
 }
 
-void CClient::SetDataSocket( int nSocket )
+void CClient::SetDataConnection( CDataConnection* pConnection )
 {
-    m_nDataSocket = nSocket;
+    m_pDataConnection = pConnection;
 }
 
-const int& CClient::GetDataSocket()
+CDataConnection* CClient::GetDataConnection()
 {
-    return m_nDataSocket;
+    return m_pDataConnection;
 }
 
 const time_t& CClient::GetTimeConnected()
@@ -153,14 +150,14 @@ void CClient::SendMessage( string szMessage )
 
 void CClient::SendData( char* pData, unsigned int nDataSize )
 {
-    if( m_nDataSocket == -1 )
+    if( m_pDataConnection == NULL )
     {
 	// the client has no data connection
 	//
 	return;
     }
 
-    int res = send( m_nDataSocket, pData, nDataSize, 0 );
+    int res = m_pDataConnection->Send( pData, nDataSize );
 
     if( res <= 0 )
     {
@@ -302,4 +299,13 @@ const int& CClient::GetControlBufPos()
 void CClient::SetControlBufPos( int nPos )
 {
     m_nReadBufPos = nPos;
+}
+
+int CClient::GetCurrentPageSerial()
+{
+    if( m_pDataConnection == NULL )
+    {
+	return -1;
+    }
+    return m_pDataConnection->GetCurrentPageSerial();
 }

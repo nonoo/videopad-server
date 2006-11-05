@@ -50,9 +50,9 @@ binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS)
 am_videopad_server_OBJECTS = Main.$(OBJEXT) ArgParser.$(OBJEXT) \
 	SettingsFile.$(OBJEXT) Logger.$(OBJEXT) TCPListener.$(OBJEXT) \
-	UDPListener.$(OBJEXT) Server.$(OBJEXT) \
-	Server_ClientProcess.$(OBJEXT) Server_Commands.$(OBJEXT) \
-	Server_NewClientConnection.$(OBJEXT) \
+	UDPListener.$(OBJEXT) DataConnection.$(OBJEXT) \
+	Server.$(OBJEXT) Server_ClientProcess.$(OBJEXT) \
+	Server_Commands.$(OBJEXT) Server_NewClientConnection.$(OBJEXT) \
 	Server_DataProcess.$(OBJEXT) Client.$(OBJEXT) \
 	Channel.$(OBJEXT) MyString.$(OBJEXT) OggStream.$(OBJEXT) \
 	OggDecoder.$(OBJEXT) SerialMapper.$(OBJEXT)
@@ -159,6 +159,7 @@ videopad_server_SOURCES = \
 	Logger.cpp Logger.h \
 	TCPListener.cpp TCPListener.h \
 	UDPListener.cpp UDPListener.h \
+	DataConnection.h DataConnection.cpp \
 	Server.cpp Server.h \
 	Server_ClientProcess.cpp Server_Commands.cpp \
 	Server_NewClientConnection.cpp Server_DataProcess.cpp \
@@ -240,6 +241,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ArgParser.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Channel.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DataConnection.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Logger.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Main.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/MyString.Po@am__quote@

@@ -30,7 +30,7 @@ public:
     const unsigned int&	GetSerial();
     void 		SetSerial( const unsigned int& nSerial );
 
-    void		FeedPage( ogg_page& OggPage );
+    void		FeedPage( ogg_page* pOggPage );
 
 			// returns ogg_header+ogg_packet
 			// returned pointer must be deleted after use

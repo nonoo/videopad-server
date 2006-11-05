@@ -79,107 +79,78 @@ void CServer::NewDataConnection()
 	return;
     }
 
-    m_UnassignedDataSocketVector.push_back( nNewSocket );
+    CDataConnection* pNewConnection = new CDataConnection( nNewSocket );
+
+    m_UnassignedDataConnectionVector.push_back( pNewConnection );
 }
 
-int CServer::ReadUnassignedDataSocket( int& nSocket )
+int CServer::ReadDataConnection( CDataConnection* pConnection )
 {
-    int res = recv( nSocket,
-	m_pOggDecoder->GetBuffer( MAXDATAREAD ), MAXDATAREAD,
+    int res = recv( pConnection->GetSocket(),
+	pConnection->GetOggDecoderBuffer( MAXDATAREAD ), MAXDATAREAD,
 	MSG_DONTWAIT );
 
     if( ( res <= 0 ) && ( errno != EAGAIN ) )
     {
-	shutdown( nSocket, SHUT_RDWR );
-	close( nSocket );
-	nSocket = -1;
+	// socket error, deleting client
+	//
+	for( vector< CClient* >::iterator it = m_ClientVector.begin();
+	    it != m_ClientVector.end(); it++ )
+	{
+	    if( (*it)->GetDataConnection()->GetSocket() == pConnection->GetSocket() )
+	    {
+		DeleteClient( *it );
+		break;
+	    }
+	}
 	return -1;
     }
 
-    int nSerial = m_pOggDecoder->Wrote( res );
-    if( nSerial >= 0 )
+    pConnection->OggDecoderWrote( res );
+
+    int nSerial = -1;
+    ogg_page* pOggPage = NULL;
+    CClient* pClient = NULL;
+
+    do
     {
-    cout <<nSerial<<endl;
-	// ogg page is ready, we got the serial.
-	// now associating socket with the client
-	CClient* pClient = m_SerialMapper.GetClient( nSerial );
-	if( pClient == NULL )
+	pOggPage = pConnection->OggDecoderPageOut();
+	if( pOggPage == NULL )
 	{
-	    return -1;
+	    // this happens when we could not associate a client
+	    // with available ogg pages
+	    // maybe there was unprocessed ogg pages in the decoder left from
+	    // a previous data connection
+	    //
+//	    cout << res << ": ogg page fail" << endl;
+	    return -2;
 	}
-	pClient->SetDataSocket( nSocket );
+//	cout << res << ": not failed" << endl;
+	nSerial = ogg_page_serialno( pOggPage );
 
-	// feeding ogg page into the client's associated stream
-	COggStream* pOggStream = m_SerialMapper.GetOggStream( nSerial );
-	if( pOggStream == NULL )
-	{
-	    return -1;
-	}
-	pOggStream->FeedPage( m_pOggDecoder->GetPage() );
+	// getting the client of this ogg page
+	//
+	pClient = m_SerialMapper.GetClient( nSerial );
+    } while( pClient == NULL );
 
-	// processing page with the client
-	ProcessClientData( pClient );
-
-	return nSerial;
-    }
-    return -2;
-}
-
-void CServer::ReadUDPData( CUDPListener* pUDPListener )
-{
-    int res = recv( pUDPListener->GetSocket(),
-	m_pOggDecoder->GetBuffer( MAXDATAREAD ), MAXDATAREAD,
-	MSG_DONTWAIT );
-
-    if( ( res <= 0 ) && ( errno != EAGAIN ) )
+    if( pClient->GetDataConnection() == NULL )
     {
-	return;
+	pClient->SetDataConnection( pConnection );
     }
 
-    int nSerial = m_pOggDecoder->Wrote( res );
-    if( nSerial >= 0 )
+    // feeding ogg page into the client's associated stream
+    //
+    COggStream* pOggStream = m_SerialMapper.GetOggStream( nSerial );
+    if( pOggStream == NULL )
     {
-	// ogg page is ready, we got the serial.
-	CClient* pClient = m_SerialMapper.GetClient( nSerial );
-
-	// getting the associated ogg stream for the page we want to process
-	COggStream* pOggStream = m_SerialMapper.GetOggStream(
-	    m_pOggDecoder->GetCurrentPageSerial() );
-
-	if( pOggStream != NULL )
-	{
-	    pOggStream->FeedPage( m_pOggDecoder->GetPage() );
-	}
-
-	// processing page with the client
-	ProcessClientData( pClient );
+        return -1;
     }
-}
+    pOggStream->FeedPage( pOggPage );
 
-void CServer::ReadClientDataSocket( CClient*& pClient )
-{
-    int res = recv( pClient->GetDataSocket(),
-	m_pOggDecoder->GetBuffer( MAXDATAREAD ),
-	MAXDATAREAD, MSG_DONTWAIT );
+    // processing page with the client
+    ProcessClientData( pClient );
 
-    if( ( res <= 0 ) && ( errno != EAGAIN ) )
-    {
-	DeleteClient( pClient );
-	return;
-    }
-
-    int nSerial = m_pOggDecoder->Wrote( res );
-    if( nSerial >= 0 )
-    {
-	// getting the associated ogg stream for the page we want to process
-	COggStream* pOggStream = m_SerialMapper.GetOggStream(
-	    m_pOggDecoder->GetCurrentPageSerial() );
-
-	pOggStream->FeedPage( m_pOggDecoder->GetPage() );
-
-	// processing page with the client
-	ProcessClientData( pClient );
-    }
+    return 0;
 }
 
 void CServer::ProcessClientData( CClient*& pClient )
@@ -190,7 +161,7 @@ void CServer::ProcessClientData( CClient*& pClient )
     } 
 
     COggStream* pOggStream = m_SerialMapper.GetOggStream(
-        m_pOggDecoder->GetCurrentPageSerial() );
+        pClient->GetCurrentPageSerial() );
 
     if( pOggStream == NULL )
     {
